@@ -25,6 +25,7 @@ text-align:center;
 background:black;
 }
 
+/* Animated Background */
 body::before{
 content:"";
 position:fixed;
@@ -53,10 +54,11 @@ max-width:90%;
 
 h1{
 font-size:2.4rem;
-margin-bottom:50px;
+margin-bottom:40px;
 min-height:70px;
 }
 
+/* Buttons */
 .buttons{
 display:flex;
 justify-content:center;
@@ -100,6 +102,7 @@ background:white;
 color:#ff4d6d;
 }
 
+/* Reveal */
 .reveal{
 display:none;
 animation:fadeIn 1.5s ease forwards;
@@ -110,6 +113,15 @@ from{opacity:0;transform:scale(.7);}
 to{opacity:1;transform:scale(1);}
 }
 
+/* Heartbeat Animation */
+@keyframes heartbeat{
+0%{transform:scale(1);}
+25%{transform:scale(1.1);}
+40%{transform:scale(1);}
+60%{transform:scale(1.15);}
+100%{transform:scale(1);}
+}
+
 .photo{
 width:200px;
 height:200px;
@@ -118,6 +130,10 @@ object-fit:cover;
 margin:25px 0;
 border:6px solid white;
 box-shadow:0 0 50px rgba(255,255,255,.9);
+}
+
+.photo.beat{
+animation:heartbeat 1.5s infinite;
 }
 
 .poetic-text{
@@ -131,6 +147,19 @@ white-space:pre-line;
 .footer{
 margin-top:20px;
 font-style:italic;
+}
+
+/* Floating Hearts */
+.heart{
+position:absolute;
+animation:floatUp 5s linear infinite;
+}
+
+@keyframes floatUp{
+0%{transform:translateY(100vh) scale(.5);opacity:0;}
+20%{opacity:1;}
+80%{opacity:1;}
+100%{transform:translateY(-10vh) scale(1.5);opacity:0;}
 }
 
 canvas{
@@ -197,7 +226,17 @@ const revealTitle = document.getElementById("revealTitle");
 
 let yesSize = 1;
 
-/* ===== TYPING FUNCTION ===== */
+/* Funny NO Messages */
+const funnyMessages = [
+"Are you sure? 😏",
+"Think again 👀",
+"Wrong answer 😂",
+"Try pressing YES instead 💕",
+"You can't escape 😎",
+"Still no? Brave move 😆"
+];
+
+/* Typing Function */
 function typeText(element, text, speed, callback){
 let i = 0;
 element.innerHTML = "";
@@ -213,10 +252,10 @@ callback();
 typing();
 }
 
-/* ===== INTRO QUESTION ===== */
+/* Intro Question (NO NAME HERE) */
 typeText(
 typingQuestion,
-`Will you be my Valentine, ${name}? 💝`,
+"Will you be my Valentine? 💝",
 80,
 ()=>{
 buttonsWrapper.style.opacity="1";
@@ -225,13 +264,22 @@ setTimeout(()=>{ noBtn.classList.add("pop"); },400);
 }
 );
 
-/* ===== MOVE NO BUTTON ===== */
+/* Move NO Button */
 function moveNoButton(){
+
+if (navigator.vibrate) {
+navigator.vibrate([100,50,100]);
+}
+
+const randomMessage = funnyMessages[Math.floor(Math.random()*funnyMessages.length)];
+noBtn.innerText = randomMessage;
+
 yesSize += 0.15;
 yesBtn.style.transform = `scale(${yesSize})`;
 
-const maxX = window.innerWidth - noBtn.offsetWidth;
-const maxY = window.innerHeight - noBtn.offsetHeight;
+const padding = 20;
+const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+const maxY = window.innerHeight - noBtn.offsetHeight - padding;
 
 noBtn.style.position = "fixed";
 noBtn.style.left = Math.random() * maxX + "px";
@@ -245,12 +293,14 @@ moveNoButton();
 });
 noBtn.addEventListener("click", moveNoButton);
 
-/* ===== YES CLICK ===== */
+/* YES CLICK */
 yesBtn.addEventListener("click",()=>{
 questionBox.style.display="none";
 revealBox.style.display="block";
 
 revealTitle.innerText = `Happy Valentine’s Day, ${name}! 💖`;
+
+photo.classList.add("beat");
 
 music.volume=0.7;
 music.play();
@@ -272,7 +322,19 @@ sharing smiles, laughter, and positive energy 💕`,
 launchConfetti();
 });
 
-/* ===== CONFETTI ===== */
+/* Floating Hearts */
+function createHeart(){
+const heart=document.createElement("div");
+heart.classList.add("heart");
+heart.innerHTML=Math.random()>.5?"💖":"❤️";
+heart.style.left=Math.random()*100+"vw";
+heart.style.fontSize=(20+Math.random()*30)+"px";
+document.body.appendChild(heart);
+setTimeout(()=>heart.remove(),5000);
+}
+setInterval(createHeart,500);
+
+/* Confetti */
 const canvas=document.getElementById("confetti");
 const ctx=canvas.getContext("2d");
 canvas.width=window.innerWidth;
@@ -280,7 +342,7 @@ canvas.height=window.innerHeight;
 
 function launchConfetti(){
 const particles=[];
-for(let i=0;i<200;i++){
+for(let i=0;i<250;i++){
 particles.push({
 x:Math.random()*canvas.width,
 y:Math.random()*canvas.height,
