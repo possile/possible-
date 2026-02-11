@@ -25,7 +25,6 @@ text-align:center;
 background:black;
 }
 
-/* Animated Background */
 body::before{
 content:"";
 position:fixed;
@@ -58,7 +57,6 @@ margin-bottom:50px;
 min-height:70px;
 }
 
-/* Buttons Wrapper */
 .buttons{
 display:flex;
 justify-content:center;
@@ -68,7 +66,6 @@ transform:scale(.5);
 transition:all .6s ease;
 }
 
-/* Individual Pop */
 .pop{
 animation:popIn .6s ease forwards;
 }
@@ -103,7 +100,6 @@ background:white;
 color:#ff4d6d;
 }
 
-/* Reveal Section */
 .reveal{
 display:none;
 animation:fadeIn 1.5s ease forwards;
@@ -137,19 +133,6 @@ margin-top:20px;
 font-style:italic;
 }
 
-/* Hearts */
-.heart{
-position:absolute;
-animation:floatUp 5s linear infinite;
-}
-
-@keyframes floatUp{
-0%{transform:translateY(100vh) scale(.5);opacity:0;}
-20%{opacity:1;}
-80%{opacity:1;}
-100%{transform:translateY(-10vh) scale(1.5);opacity:0;}
-}
-
 canvas{
 position:fixed;
 top:0;
@@ -176,40 +159,45 @@ pointer-events:none;
 </div>
 
 <div class="container reveal" id="revealBox">
-<h1>She said YES! 💖</h1>
-<img src="your-photo.jpg" class="photo">
+<h1 id="revealTitle"></h1>
+<img id="valentinePhoto" src="default.jpg" class="photo">
 <p class="poetic-text" id="typedMessage"></p>
-<div class="footer">Forever yours, Immanuel ❤️</div>
+<div class="footer">With love , Immanuel 💫</div>
 </div>
 
 <script>
+
+/* ===== GET NAME FROM URL ===== */
+const urlParams = new URLSearchParams(window.location.search);
+let name = urlParams.get("name");
+
+if (name) {
+name = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+} else {
+name = "My Friend";
+}
+
+/* ===== CHANGE PHOTO BASED ON NAME ===== */
+const photo = document.getElementById("valentinePhoto");
+photo.src = name.toLowerCase() + ".jpg";
+photo.onerror = function(){
+this.src = "default.jpg";
+};
+
+/* ===== ELEMENTS ===== */
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
 const revealBox = document.getElementById("revealBox");
 const questionBox = document.getElementById("questionBox");
 const music = document.getElementById("bgMusic");
-
 const typingQuestion = document.getElementById("typingQuestion");
 const typedMessage = document.getElementById("typedMessage");
 const buttonsWrapper = document.getElementById("buttonsWrapper");
+const revealTitle = document.getElementById("revealTitle");
 
 let yesSize = 1;
 
-/* Funny NO Messages */
-const funnyMessages = [
-"Are you sure? 😏",
-"Think again 👀",
-"That button is broken 😂",
-"Wrong answer ❌",
-"You sure about that? 🤨",
-"Try pressing YES instead 💕",
-"Mission failed... try again 😆",
-"You can't escape love 💘",
-"Nice try 😎",
-"Still no? Brave move 😂"
-];
-
-/* Typing Function */
+/* ===== TYPING FUNCTION ===== */
 function typeText(element, text, speed, callback){
 let i = 0;
 element.innerHTML = "";
@@ -225,93 +213,66 @@ callback();
 typing();
 }
 
-/* Intro typing then show buttons */
+/* ===== INTRO QUESTION ===== */
 typeText(
 typingQuestion,
-"Will you be my Valentine? 💝",
+`Will you be my Valentine, ${name}? 💝`,
 80,
 ()=>{
 buttonsWrapper.style.opacity="1";
 yesBtn.classList.add("pop");
-setTimeout(()=>{
-noBtn.classList.add("pop");
-},400);
+setTimeout(()=>{ noBtn.classList.add("pop"); },400);
 }
 );
 
-/* Move NO Button (Works on PC + Mobile) */
+/* ===== MOVE NO BUTTON ===== */
 function moveNoButton(){
-
-// 📳 Vibrate on supported devices (mobile only)
-if (navigator.vibrate) {
-    navigator.vibrate([100, 50, 150]); 
-}
-
-// Show funny message
-const randomMessage = funnyMessages[Math.floor(Math.random() * funnyMessages.length)];
-noBtn.innerText = randomMessage;
-
-// Grow YES button
 yesSize += 0.15;
 yesBtn.style.transform = `scale(${yesSize})`;
 
-// Random position
-const padding = 20;
-const maxX = window.innerWidth - noBtn.offsetWidth - padding;
-const maxY = window.innerHeight - noBtn.offsetHeight - padding;
+const maxX = window.innerWidth - noBtn.offsetWidth;
+const maxY = window.innerHeight - noBtn.offsetHeight;
 
 noBtn.style.position = "fixed";
 noBtn.style.left = Math.random() * maxX + "px";
 noBtn.style.top = Math.random() * maxY + "px";
 }
 
-
-/* PC hover */
 noBtn.addEventListener("mouseenter", moveNoButton);
-
-/* Mobile touch */
 noBtn.addEventListener("touchstart", function(e){
 e.preventDefault();
 moveNoButton();
 });
-
-/* Click (both mobile + pc) */
 noBtn.addEventListener("click", moveNoButton);
 
-
-/* YES click */
+/* ===== YES CLICK ===== */
 yesBtn.addEventListener("click",()=>{
 questionBox.style.display="none";
 revealBox.style.display="block";
+
+revealTitle.innerText = `Happy Valentine’s Day, ${name}! 💖`;
 
 music.volume=0.7;
 music.play();
 
 typeText(
 typedMessage,
-"Happy Valentine’s Day! 😄\nI just wanted to say… you’re such an awesome friend and honestly, you make life way more fun whenever you’re around.\nSo today I thought I’d be a little cheesy and ask… would you be my Valentine? 💖",
+`So ${name}… this isn’t about anything too serious 😊
+
+I just wanted to celebrate the day and show some love.
+
+Whether as friends or just two people enjoying good vibes,
+I’m really glad you’re in my life.
+
+So being my Valentine today simply means
+sharing smiles, laughter, and positive energy 💕`,
 40
 );
-
 
 launchConfetti();
 });
 
-
-/* Floating Hearts */
-function createHeart(){
-const heart=document.createElement("div");
-heart.classList.add("heart");
-heart.innerHTML=Math.random()>.5?"💖":"❤️";
-heart.style.left=Math.random()*100+"vw";
-heart.style.fontSize=(20+Math.random()*30)+"px";
-document.body.appendChild(heart);
-setTimeout(()=>heart.remove(),5000);
-}
-setInterval(createHeart,500);
-
-
-/* Confetti */
+/* ===== CONFETTI ===== */
 const canvas=document.getElementById("confetti");
 const ctx=canvas.getContext("2d");
 canvas.width=window.innerWidth;
@@ -319,7 +280,7 @@ canvas.height=window.innerHeight;
 
 function launchConfetti(){
 const particles=[];
-for(let i=0;i<250;i++){
+for(let i=0;i<200;i++){
 particles.push({
 x:Math.random()*canvas.width,
 y:Math.random()*canvas.height,
@@ -344,7 +305,7 @@ requestAnimationFrame(animate);
 }
 animate();
 }
-</script>
 
+</script>
 </body>
 </html>
